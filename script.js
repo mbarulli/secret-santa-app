@@ -74,7 +74,7 @@ function renderExclusionGrid() {
         participants.forEach((receiver, j) => {
             const cell = document.createElement('div');
             cell.classList.add('grid-cell');
-            if (i === j) {
+            if (i >= j) {
                 cell.textContent = 'X';
             } else {
                 const checkbox = document.createElement('input');
@@ -83,6 +83,7 @@ function renderExclusionGrid() {
                 checkbox.checked = exclusions[i][j];
                 checkbox.addEventListener('change', () => {
                     exclusions[i][j] = checkbox.checked;
+                    exclusions[j][i] = checkbox.checked; // Make exclusion bidirectional
                     saveData();
                 });
                 cell.appendChild(checkbox);
