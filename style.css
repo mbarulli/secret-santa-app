@@ -1,0 +1,91 @@
+body {
+    font-family: sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+}
+
+h1, h2, h3 {
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+input[type="text"],
+input[type="email"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #28a745;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+#participant-list {
+    margin-top: 2rem;
+}
+
+#participants {
+    list-style: none;
+    padding: 0;
+}
+
+#participants li {
+    background-color: #f9f9f9;
+    padding: 0.5rem;
+    border: 1px solid #eee;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#results-panel {
+    margin-top: 2rem;
+}
+
+#results {
+    list-style: none;
+    padding: 0;
+}
+
+#results li {
+    background-color: #e9f7ef;
+    padding: 0.5rem;
+    border: 1px solid #d4edda;
+    margin-bottom: 0.5rem;
+}
