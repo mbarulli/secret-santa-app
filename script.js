@@ -5,9 +5,20 @@ const resultsPanel = document.getElementById('results-panel');
 const resultsList = document.getElementById('results');
 const exclusionGridContainer = document.getElementById('exclusion-grid-container');
 const exclusionGrid = document.getElementById('exclusion-grid');
+const drawHistoryContainer = document.getElementById('draw-history-container');
+const drawHistoryList = document.getElementById('draw-history');
+
+// Modal elements
+const modal = document.getElementById('draw-modal');
+const modalResultsList = document.getElementById('modal-results');
+const closeButton = document.querySelector('.close-button');
+const acceptDrawButton = document.getElementById('accept-draw');
+const redrawButton = document.getElementById('redraw');
 
 let participants = [];
 let exclusions = [];
+let drawHistory = [];
+let currentDraw = [];
 
 // Load data from localStorage on page load
 loadData();
@@ -116,14 +127,10 @@ drawButton.addEventListener('click', () => {
         return;
     }
 
-    const results = drawNames();
-    if (results) {
-        renderResults(results);
-        resultsPanel.style.display = 'block';
-        drawButton.style.display = 'none';
-        participantForm.style.display = 'none';
-        participantList.style.display = 'none';
-        exclusionGridContainer.style.display = 'none';
+    currentDraw = drawNames();
+    if (currentDraw) {
+        renderModalResults(currentDraw);
+        modal.style.display = 'block';
     } else {
         alert('Could not find a valid assignment. Please check your exclusions.');
     }
@@ -166,6 +173,15 @@ function drawNames() {
     return assignments;
 }
 
+function renderModalResults(results) {
+    modalResultsList.innerHTML = '';
+    results.forEach(assignment => {
+        const li = document.createElement('li');
+        li.textContent = `${assignment.giver.name} is the Secret Santa for ${assignment.receiver.name}`;
+        modalResultsList.appendChild(li);
+    });
+}
+
 function renderResults(results) {
     resultsList.innerHTML = '';
     results.forEach(assignment => {
@@ -181,14 +197,37 @@ function renderResults(results) {
     });
 }
 
+function renderDrawHistory() {
+    drawHistoryList.innerHTML = '';
+    if (drawHistory.length > 0) {
+        drawHistoryContainer.style.display = 'block';
+    } else {
+        drawHistoryContainer.style.display = 'none';
+    }
+
+    drawHistory.forEach(draw => {
+        const li = document.createElement('li');
+        const date = new Date(draw.date).toLocaleString();
+        li.textContent = `Draw from ${date}`;
+        li.addEventListener('click', () => {
+            renderResults(draw.assignments);
+            resultsPanel.style.display = 'block';
+        });
+        drawHistoryList.appendChild(li);
+    });
+}
+
+
 function saveData() {
     localStorage.setItem('secretSantaParticipants', JSON.stringify(participants));
     localStorage.setItem('secretSantaExclusions', JSON.stringify(exclusions));
+    localStorage.setItem('secretSantaDrawHistory', JSON.stringify(drawHistory));
 }
 
 function loadData() {
     const storedParticipants = localStorage.getItem('secretSantaParticipants');
     const storedExclusions = localStorage.getItem('secretSantaExclusions');
+    const storedDrawHistory = localStorage.getItem('secretSantaDrawHistory');
 
     if (storedParticipants) {
         participants = JSON.parse(storedParticipants);
@@ -199,5 +238,39 @@ function loadData() {
         exclusions = JSON.parse(storedExclusions);
     }
 
+    if (storedDrawHistory) {
+        drawHistory = JSON.parse(storedDrawHistory);
+        renderDrawHistory();
+    }
+
     renderExclusionGrid();
 }
+
+// Modal event listeners
+closeButton.addEventListener('click', () => {
+    modal.style.display = 'none';
+});
+
+window.addEventListener('click', (event) => {
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+});
+
+acceptDrawButton.addEventListener('click', () => {
+    drawHistory.push({ date: new Date(), assignments: currentDraw });
+    saveData();
+    renderDrawHistory();
+    modal.style.display = 'none';
+    renderResults(currentDraw);
+    resultsPanel.style.display = 'block';
+});
+
+redrawButton.addEventListener('click', () => {
+    currentDraw = drawNames();
+    if (currentDraw) {
+        renderModalResults(currentDraw);
+    } else {
+        alert('Could not find a valid assignment. Please check your exclusions.');
+    }
+});

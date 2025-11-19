@@ -30,6 +30,10 @@
                 <h3>Exclude Combinations</h3>
                 <div id="exclusion-grid"></div>
             </div>
+            <div id="draw-history-container" style="display: none;">
+                <h3>Draw History</h3>
+                <ul id="draw-history"></ul>
+            </div>
             <button id="draw-button">Draw Names</button>
         </div>
         <div id="results-panel" style="display: none;">
@@ -37,6 +41,20 @@
             <ul id="results"></ul>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div id="draw-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Draw Results</h2>
+            <ul id="modal-results"></ul>
+            <div class="modal-buttons">
+                <button id="accept-draw">Accept</button>
+                <button id="redraw">Redraw</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
