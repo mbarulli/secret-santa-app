@@ -89,3 +89,30 @@ button:hover {
     border: 1px solid #d4edda;
     margin-bottom: 0.5rem;
 }
+
+#exclusion-grid-container {
+    margin-top: 2rem;
+}
+
+#exclusion-grid {
+    display: grid;
+    grid-template-columns: auto repeat(auto-fill, minmax(100px, 1fr));
+    gap: 5px;
+    overflow-x: auto;
+}
+
+.grid-cell {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+
+.grid-header {
+    font-weight: bold;
+    background-color: #f2f2f2;
+}
+
+.grid-checkbox {
+    width: 20px;
+    height: 20px;
+}
