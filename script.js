@@ -170,7 +170,13 @@ function renderResults(results) {
     resultsList.innerHTML = '';
     results.forEach(assignment => {
         const li = document.createElement('li');
-        li.textContent = `${assignment.giver.name} is the Secret Santa for ${assignment.receiver.name}`;
+        const link = document.createElement('a');
+        const data = btoa(JSON.stringify(assignment));
+        const url = `participant.html?data=${data}`;
+        link.href = url;
+        link.target = '_blank';
+        link.textContent = `Link for ${assignment.giver.name}`;
+        li.appendChild(link);
         resultsList.appendChild(li);
     });
 }
