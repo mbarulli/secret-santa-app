@@ -86,9 +86,12 @@ function renderExclusionGrid() {
         participants.forEach((receiver, j) => {
             const cell = document.createElement('div');
             cell.classList.add('grid-cell');
-            if (i >= j) {
+            if (i === j) {
                 cell.textContent = 'X';
-            } else {
+            } else if (i > j) {
+                // This is the lower triangle, leave it empty
+            }
+            else {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.classList.add('grid-checkbox');
