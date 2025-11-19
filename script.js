@@ -35,6 +35,18 @@ function renderParticipants() {
     participants.forEach((participant, index) => {
         const li = document.createElement('li');
         li.textContent = `${participant.name} (${participant.email})`;
+
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.classList.add('remove-button');
+        removeButton.addEventListener('click', () => {
+            participants.splice(index, 1);
+            renderParticipants();
+            renderExclusionGrid();
+            saveData();
+        });
+
+        li.appendChild(removeButton);
         participantList.appendChild(li);
     });
 }
