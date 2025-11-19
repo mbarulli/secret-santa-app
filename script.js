@@ -1,23 +1,26 @@
 const participantForm = document.getElementById('participant-form');
 const participantList = document.getElementById('participants');
 const drawButton = document.getElementById('draw-button');
-const resultsPanel = document.getElementById('results-panel');
-const resultsList = document.getElementById('results');
 const exclusionGridContainer = document.getElementById('exclusion-grid-container');
 const exclusionGrid = document.getElementById('exclusion-grid');
 const drawHistoryContainer = document.getElementById('draw-history-container');
 const drawHistoryList = document.getElementById('draw-history');
-const selectedDrawContainer = document.getElementById('selected-draw-container');
-const selectedDrawDetails = document.getElementById('selected-draw-details');
-const selectedDrawLinks = document.getElementById('selected-draw-links');
+const deleteDrawsButton = document.getElementById('delete-draws');
+const detailsDrawsButton = document.getElementById('details-draws');
+const linksDrawsButton = document.getElementById('links-draws');
 
-
-// Modal elements
-const modal = document.getElementById('draw-modal');
+// Draw Confirmation Modal elements
+const drawModal = document.getElementById('draw-modal');
 const modalResultsList = document.getElementById('modal-results');
-const closeButton = document.querySelector('.close-button');
+const drawModalCloseButton = drawModal.querySelector('.close-button');
 const acceptDrawButton = document.getElementById('accept-draw');
 const redrawButton = document.getElementById('redraw');
+
+// Details/Links Modal elements
+const detailsModal = document.getElementById('details-modal');
+const detailsModalTitle = document.getElementById('details-modal-title');
+const detailsModalContent = document.getElementById('details-modal-content');
+const detailsModalCloseButton = detailsModal.querySelector('.close-button');
 
 let participants = [];
 let exclusions = [];
@@ -134,7 +137,7 @@ drawButton.addEventListener('click', () => {
     currentDraw = drawNames();
     if (currentDraw) {
         renderModalResults(currentDraw);
-        modal.style.display = 'block';
+        drawModal.style.display = 'block';
     } else {
         alert('Could not find a valid assignment. Please check your exclusions.');
     }
@@ -196,37 +199,83 @@ function renderDrawHistory() {
 
     drawHistory.forEach((draw, index) => {
         const li = document.createElement('li');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.dataset.index = index;
+        li.appendChild(checkbox);
+
         const date = new Date(draw.date).toLocaleString();
-        li.textContent = `Draw from ${date}`;
-        li.addEventListener('click', () => {
-            renderSelectedDraw(index);
-        });
+        const label = document.createElement('label');
+        label.textContent = `Draw from ${date}`;
+        li.appendChild(label);
+
         drawHistoryList.appendChild(li);
     });
 }
 
-function renderSelectedDraw(drawIndex) {
-    const draw = drawHistory[drawIndex];
-    selectedDrawContainer.style.display = 'block';
-    selectedDrawDetails.innerHTML = '';
-    selectedDrawLinks.innerHTML = '';
+function getSelectedDraws() {
+    const selectedDraws = [];
+    const checkboxes = drawHistoryList.querySelectorAll('input[type="checkbox"]:checked');
+    checkboxes.forEach(checkbox => {
+        selectedDraws.push(parseInt(checkbox.dataset.index));
+    });
+    return selectedDraws;
+}
 
+deleteDrawsButton.addEventListener('click', () => {
+    const selectedDraws = getSelectedDraws().sort((a, b) => b - a);
+    selectedDraws.forEach(index => {
+        drawHistory.splice(index, 1);
+    });
+    saveData();
+    renderDrawHistory();
+});
+
+detailsDrawsButton.addEventListener('click', () => {
+    const selectedDraws = getSelectedDraws();
+    if (selectedDraws.length === 0) {
+        alert('Please select a draw to see the details.');
+        return;
+    }
+    if (selectedDraws.length > 1) {
+        alert('Please select only one draw to see the details.');
+        return;
+    }
+
+    const draw = drawHistory[selectedDraws[0]];
+    detailsModalTitle.textContent = `Details for Draw from ${new Date(draw.date).toLocaleString()}`;
+    let table = '<table><tr><th>Santa</th><th>For</th></tr>';
     draw.assignments.forEach(assignment => {
-        const li = document.createElement('li');
-        li.textContent = `${assignment.giver.name} is the Secret Santa for ${assignment.receiver.name}`;
-        selectedDrawDetails.appendChild(li);
+        table += `<tr><td>${assignment.giver.name}</td><td>${assignment.receiver.name}</td></tr>`;
+    });
+    table += '</table>';
+    detailsModalContent.innerHTML = table;
+    detailsModal.style.display = 'block';
+});
 
-        const linkLi = document.createElement('li');
-        const link = document.createElement('a');
+linksDrawsButton.addEventListener('click', () => {
+    const selectedDraws = getSelectedDraws();
+    if (selectedDraws.length === 0) {
+        alert('Please select a draw to see the links.');
+        return;
+    }
+    if (selectedDraws.length > 1) {
+        alert('Please select only one draw to see the links.');
+        return;
+    }
+
+    const draw = drawHistory[selectedDraws[0]];
+    detailsModalTitle.textContent = `Links for Draw from ${new Date(draw.date).toLocaleString()}`;
+    let table = '<table><tr><th>Participant</th><th>Link</th></tr>';
+    draw.assignments.forEach(assignment => {
         const data = btoa(JSON.stringify(assignment));
         const url = `participant.html?data=${data}`;
-        link.href = url;
-        link.target = '_blank';
-        link.textContent = `Link for ${assignment.giver.name}`;
-        linkLi.appendChild(link);
-        selectedDrawLinks.appendChild(linkLi);
+        table += `<tr><td>${assignment.giver.name}</td><td><a href="${url}" target="_blank">${url}</a></td></tr>`;
     });
-}
+    table += '</table>';
+    detailsModalContent.innerHTML = table;
+    detailsModal.style.display = 'block';
+});
 
 
 function saveData() {
@@ -258,13 +307,20 @@ function loadData() {
 }
 
 // Modal event listeners
-closeButton.addEventListener('click', () => {
-    modal.style.display = 'none';
+drawModalCloseButton.addEventListener('click', () => {
+    drawModal.style.display = 'none';
+});
+
+detailsModalCloseButton.addEventListener('click', () => {
+    detailsModal.style.display = 'none';
 });
 
 window.addEventListener('click', (event) => {
-    if (event.target == modal) {
-        modal.style.display = 'none';
+    if (event.target == drawModal) {
+        drawModal.style.display = 'none';
+    }
+    if (event.target == detailsModal) {
+        detailsModal.style.display = 'none';
     }
 });
 
@@ -272,8 +328,7 @@ acceptDrawButton.addEventListener('click', () => {
     drawHistory.push({ date: new Date(), assignments: currentDraw });
     saveData();
     renderDrawHistory();
-    modal.style.display = 'none';
-    renderSelectedDraw(drawHistory.length - 1);
+    drawModal.style.display = 'none';
 });
 
 redrawButton.addEventListener('click', () => {

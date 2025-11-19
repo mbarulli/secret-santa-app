@@ -33,22 +33,17 @@
             <div id="draw-history-container" style="display: none;">
                 <h3>Draw History</h3>
                 <ul id="draw-history"></ul>
-            </div>
-            <div id="selected-draw-container" style="display: none;">
-                <h3>Selected Draw Details</h3>
-                <div id="selected-draw-details"></div>
-                <h3>Participant Links</h3>
-                <ul id="selected-draw-links"></ul>
+                <div class="history-actions">
+                    <button id="delete-draws">Delete</button>
+                    <button id="details-draws">Details</button>
+                    <button id="links-draws">Links</button>
+                </div>
             </div>
             <button id="draw-button">Draw Names</button>
         </div>
-        <div id="results-panel" style="display: none;">
-            <h2>Results</h2>
-            <ul id="results"></ul>
-        </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Draw Confirmation Modal -->
     <div id="draw-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-button">&times;</span>
@@ -58,6 +53,15 @@
                 <button id="accept-draw">Accept</button>
                 <button id="redraw">Redraw</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Details/Links Modal -->
+    <div id="details-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="details-modal-title"></h2>
+            <div id="details-modal-content"></div>
         </div>
     </div>
 

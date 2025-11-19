@@ -137,8 +137,10 @@ button:hover {
     margin-top: 2rem;
 }
 
-#selected-draw-container {
-    margin-top: 2rem;
+.history-actions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1rem;
 }
 
 /* Modal */
@@ -181,4 +183,19 @@ button:hover {
     display: flex;
     justify-content: space-around;
     margin-top: 20px;
+}
+
+#details-modal-content table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#details-modal-content th, #details-modal-content td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#details-modal-content th {
+    background-color: #f2f2f2;
 }
