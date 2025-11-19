@@ -9,6 +9,9 @@ const exclusionGrid = document.getElementById('exclusion-grid');
 let participants = [];
 let exclusions = [];
 
+// Load data from localStorage on page load
+loadData();
+
 participantForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const nameInput = document.getElementById('name');
@@ -21,6 +24,7 @@ participantForm.addEventListener('submit', (e) => {
         participants.push({ name, email });
         renderParticipants();
         renderExclusionGrid();
+        saveData();
         nameInput.value = '';
         emailInput.value = '';
     }
@@ -43,8 +47,11 @@ function renderExclusionGrid() {
     exclusionGridContainer.style.display = 'block';
     exclusionGrid.innerHTML = '';
 
-    // Initialize exclusions matrix
-    exclusions = Array(participants.length).fill(null).map(() => Array(participants.length).fill(false));
+    // Initialize exclusions matrix if it's not the right size
+    if (exclusions.length !== participants.length || exclusions[0].length !== participants.length) {
+        exclusions = Array(participants.length).fill(null).map(() => Array(participants.length).fill(false));
+    }
+
 
     // Create header row
     const headerRow = document.createElement('div');
@@ -73,8 +80,10 @@ function renderExclusionGrid() {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.classList.add('grid-checkbox');
+                checkbox.checked = exclusions[i][j];
                 checkbox.addEventListener('change', () => {
                     exclusions[i][j] = checkbox.checked;
+                    saveData();
                 });
                 cell.appendChild(checkbox);
             }
@@ -148,4 +157,25 @@ function renderResults(results) {
         li.textContent = `${assignment.giver.name} is the Secret Santa for ${assignment.receiver.name}`;
         resultsList.appendChild(li);
     });
+}
+
+function saveData() {
+    localStorage.setItem('secretSantaParticipants', JSON.stringify(participants));
+    localStorage.setItem('secretSantaExclusions', JSON.stringify(exclusions));
+}
+
+function loadData() {
+    const storedParticipants = localStorage.getItem('secretSantaParticipants');
+    const storedExclusions = localStorage.getItem('secretSantaExclusions');
+
+    if (storedParticipants) {
+        participants = JSON.parse(storedParticipants);
+        renderParticipants();
+    }
+
+    if (storedExclusions) {
+        exclusions = JSON.parse(storedExclusions);
+    }
+
+    renderExclusionGrid();
 }
