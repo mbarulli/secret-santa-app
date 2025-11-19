@@ -7,6 +7,10 @@ const exclusionGridContainer = document.getElementById('exclusion-grid-container
 const exclusionGrid = document.getElementById('exclusion-grid');
 const drawHistoryContainer = document.getElementById('draw-history-container');
 const drawHistoryList = document.getElementById('draw-history');
+const selectedDrawContainer = document.getElementById('selected-draw-container');
+const selectedDrawDetails = document.getElementById('selected-draw-details');
+const selectedDrawLinks = document.getElementById('selected-draw-links');
+
 
 // Modal elements
 const modal = document.getElementById('draw-modal');
@@ -182,21 +186,6 @@ function renderModalResults(results) {
     });
 }
 
-function renderResults(results) {
-    resultsList.innerHTML = '';
-    results.forEach(assignment => {
-        const li = document.createElement('li');
-        const link = document.createElement('a');
-        const data = btoa(JSON.stringify(assignment));
-        const url = `participant.html?data=${data}`;
-        link.href = url;
-        link.target = '_blank';
-        link.textContent = `Link for ${assignment.giver.name}`;
-        li.appendChild(link);
-        resultsList.appendChild(li);
-    });
-}
-
 function renderDrawHistory() {
     drawHistoryList.innerHTML = '';
     if (drawHistory.length > 0) {
@@ -205,15 +194,37 @@ function renderDrawHistory() {
         drawHistoryContainer.style.display = 'none';
     }
 
-    drawHistory.forEach(draw => {
+    drawHistory.forEach((draw, index) => {
         const li = document.createElement('li');
         const date = new Date(draw.date).toLocaleString();
         li.textContent = `Draw from ${date}`;
         li.addEventListener('click', () => {
-            renderResults(draw.assignments);
-            resultsPanel.style.display = 'block';
+            renderSelectedDraw(index);
         });
         drawHistoryList.appendChild(li);
+    });
+}
+
+function renderSelectedDraw(drawIndex) {
+    const draw = drawHistory[drawIndex];
+    selectedDrawContainer.style.display = 'block';
+    selectedDrawDetails.innerHTML = '';
+    selectedDrawLinks.innerHTML = '';
+
+    draw.assignments.forEach(assignment => {
+        const li = document.createElement('li');
+        li.textContent = `${assignment.giver.name} is the Secret Santa for ${assignment.receiver.name}`;
+        selectedDrawDetails.appendChild(li);
+
+        const linkLi = document.createElement('li');
+        const link = document.createElement('a');
+        const data = btoa(JSON.stringify(assignment));
+        const url = `participant.html?data=${data}`;
+        link.href = url;
+        link.target = '_blank';
+        link.textContent = `Link for ${assignment.giver.name}`;
+        linkLi.appendChild(link);
+        selectedDrawLinks.appendChild(linkLi);
     });
 }
 
@@ -262,8 +273,7 @@ acceptDrawButton.addEventListener('click', () => {
     saveData();
     renderDrawHistory();
     modal.style.display = 'none';
-    renderResults(currentDraw);
-    resultsPanel.style.display = 'block';
+    renderSelectedDraw(drawHistory.length - 1);
 });
 
 redrawButton.addEventListener('click', () => {

@@ -137,6 +137,10 @@ button:hover {
     margin-top: 2rem;
 }
 
+#selected-draw-container {
+    margin-top: 2rem;
+}
+
 /* Modal */
 .modal {
     position: fixed;
