@@ -137,10 +137,39 @@ button:hover {
     margin-top: 2rem;
 }
 
+#draw-history {
+    list-style: none; /* Remove dotted list styling */
+    padding: 0;
+}
+
+#draw-history li {
+    display: flex; /* Align radio button and text on same line */
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+#draw-history li input[type="radio"] {
+    margin-right: 0.5rem;
+}
+
 .history-actions {
     display: flex;
     justify-content: space-around;
     margin-top: 1rem;
+}
+
+.history-actions button {
+    padding: 0.5rem 1rem; /* Smaller padding */
+    font-size: 0.9rem; /* Smaller font size */
+    width: auto; /* Adjust width */
+    margin: 0 0.25rem; /* Add margin between buttons */
+}
+
+#draw-button {
+    padding: 0.5rem 1rem; /* Smaller padding */
+    font-size: 1rem; /* Smaller font size */
+    width: auto; /* Adjust width */
+    margin: 1rem auto; /* Center the button */
 }
 
 /* Modal */
