@@ -199,10 +199,11 @@ function renderDrawHistory() {
 
     drawHistory.forEach((draw, index) => {
         const li = document.createElement('li');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.dataset.index = index;
-        li.appendChild(checkbox);
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'draw-history-selection';
+        radio.dataset.index = index;
+        li.appendChild(radio);
 
         const date = new Date(draw.date).toLocaleString();
         const label = document.createElement('label');
@@ -213,36 +214,33 @@ function renderDrawHistory() {
     });
 }
 
-function getSelectedDraws() {
-    const selectedDraws = [];
-    const checkboxes = drawHistoryList.querySelectorAll('input[type="checkbox"]:checked');
-    checkboxes.forEach(checkbox => {
-        selectedDraws.push(parseInt(checkbox.dataset.index));
-    });
-    return selectedDraws;
+function getSelectedDraw() {
+    const selectedRadio = drawHistoryList.querySelector('input[type="radio"]:checked');
+    if (selectedRadio) {
+        return parseInt(selectedRadio.dataset.index);
+    }
+    return null;
 }
 
 deleteDrawsButton.addEventListener('click', () => {
-    const selectedDraws = getSelectedDraws().sort((a, b) => b - a);
-    selectedDraws.forEach(index => {
-        drawHistory.splice(index, 1);
-    });
-    saveData();
-    renderDrawHistory();
+    const selectedDraw = getSelectedDraw();
+    if (selectedDraw !== null) {
+        drawHistory.splice(selectedDraw, 1);
+        saveData();
+        renderDrawHistory();
+    } else {
+        alert('Please select a draw to delete.');
+    }
 });
 
 detailsDrawsButton.addEventListener('click', () => {
-    const selectedDraws = getSelectedDraws();
-    if (selectedDraws.length === 0) {
+    const selectedDraw = getSelectedDraw();
+    if (selectedDraw === null) {
         alert('Please select a draw to see the details.');
         return;
     }
-    if (selectedDraws.length > 1) {
-        alert('Please select only one draw to see the details.');
-        return;
-    }
 
-    const draw = drawHistory[selectedDraws[0]];
+    const draw = drawHistory[selectedDraw];
     detailsModalTitle.textContent = `Details for Draw from ${new Date(draw.date).toLocaleString()}`;
     let table = '<table><tr><th>Santa</th><th>For</th></tr>';
     draw.assignments.forEach(assignment => {
@@ -254,17 +252,13 @@ detailsDrawsButton.addEventListener('click', () => {
 });
 
 linksDrawsButton.addEventListener('click', () => {
-    const selectedDraws = getSelectedDraws();
-    if (selectedDraws.length === 0) {
+    const selectedDraw = getSelectedDraw();
+    if (selectedDraw === null) {
         alert('Please select a draw to see the links.');
         return;
     }
-    if (selectedDraws.length > 1) {
-        alert('Please select only one draw to see the links.');
-        return;
-    }
 
-    const draw = drawHistory[selectedDraws[0]];
+    const draw = drawHistory[selectedDraw];
     detailsModalTitle.textContent = `Links for Draw from ${new Date(draw.date).toLocaleString()}`;
     let table = '<table><tr><th>Participant</th><th>Link</th></tr>';
     draw.assignments.forEach(assignment => {
