@@ -108,17 +108,21 @@ button:hover {
 
 #exclusion-grid-container {
     margin-top: 2rem;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
 }
 
 #exclusion-grid {
     display: grid;
-    grid-template-columns: auto repeat(auto-fill, minmax(100px, 1fr));
-    gap: 5px;
-    overflow-x: auto;
+    grid-template-columns: auto repeat(auto-fill, minmax(50px, 1fr)); /* Smaller minmax */
+    gap: 2px; /* Smaller gap */
 }
 
 .grid-cell {
-    padding: 10px;
+    padding: 5px; /* Smaller padding */
+    font-size: 0.8rem; /* Smaller font size */
     text-align: center;
     border: 1px solid #ccc;
 }
@@ -126,11 +130,14 @@ button:hover {
 .grid-header {
     font-weight: bold;
     background-color: #f2f2f2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .grid-checkbox {
-    width: 20px;
-    height: 20px;
+    width: 16px; /* Smaller checkbox */
+    height: 16px;
 }
 
 #draw-history-container {
