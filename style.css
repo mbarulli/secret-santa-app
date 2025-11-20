@@ -116,7 +116,7 @@ button:hover {
 
 #exclusion-grid {
     display: grid;
-    grid-template-columns: auto repeat(auto-fill, minmax(50px, 1fr)); /* Smaller minmax */
+    grid-template-columns: auto repeat(20, 100px); /* Fixed column width */
     gap: 2px; /* Smaller gap */
 }
 
@@ -132,7 +132,6 @@ button:hover {
     background-color: #f2f2f2;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .grid-checkbox {
