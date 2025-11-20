@@ -7,6 +7,20 @@ body {
     align-items: center;
     min-height: 100vh;
     margin: 0;
+    position: relative; /* Needed for absolute positioning of background */
+    overflow: hidden; /* Hide overflow from background image */
+}
+
+.background-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(50%); /* Darken the background to make text more readable */
+    z-index: -1; /* Place behind other content */
 }
 
 .container {
@@ -16,6 +30,8 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 500px;
+    position: relative; /* Ensure container is above background */
+    z-index: 0;
 }
 
 h1, h2, h3 {
