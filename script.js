@@ -265,12 +265,26 @@ linksDrawsButton.addEventListener('click', () => {
     let table = '<table><tr><th>Participant</th><th>Link</th></tr>';
     draw.assignments.forEach(assignment => {
         const data = btoa(JSON.stringify(assignment));
-        const url = `participant.html?data=${data}`;
-        table += `<tr><td>${assignment.giver.name}</td><td><a href="${url}" target="_blank">${url}</a></td></tr>`;
+        const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?data=${data}`;
+        table += `<tr><td>${assignment.giver.name}</td><td><button class="copy-link-button" data-url="${url}">Copy</button></td></tr>`;
     });
     table += '</table>';
     detailsModalContent.innerHTML = table;
     detailsModal.style.display = 'block';
+
+    // Add event listeners to the copy buttons
+    const copyButtons = detailsModalContent.querySelectorAll('.copy-link-button');
+    copyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const urlToCopy = button.dataset.url;
+            navigator.clipboard.writeText(urlToCopy).then(() => {
+                alert('Link copied to clipboard!');
+            }, (err) => {
+                alert('Failed to copy link.');
+                console.error('Could not copy text: ', err);
+            });
+        });
+    });
 });
 
 
