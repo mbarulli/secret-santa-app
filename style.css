@@ -116,7 +116,6 @@ button:hover {
 
 #exclusion-grid {
     display: grid;
-    grid-template-columns: auto repeat(20, 100px); /* Fixed column width */
     gap: 2px; /* Smaller gap */
 }
 
@@ -130,8 +129,7 @@ button:hover {
 .grid-header {
     font-weight: bold;
     background-color: #f2f2f2;
-    white-space: nowrap;
-    overflow: hidden;
+    min-width: 100px; /* Minimum width for header cells */
 }
 
 .grid-checkbox {

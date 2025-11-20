@@ -77,6 +77,10 @@ function renderExclusionGrid() {
     exclusionGridContainer.style.display = 'block';
     exclusionGrid.innerHTML = '';
 
+    // Dynamically set grid columns
+    exclusionGrid.style.gridTemplateColumns = `min-content repeat(${participants.length}, minmax(100px, 1fr))`;
+
+
     // Initialize exclusions matrix if it's not the right size
     if (exclusions.length !== participants.length || exclusions[0].length !== participants.length) {
         exclusions = Array(participants.length).fill(null).map(() => Array(participants.length).fill(false));
@@ -124,8 +128,6 @@ function renderExclusionGrid() {
             exclusionGrid.appendChild(cell);
         });
     });
-
-    exclusionGrid.style.gridTemplateColumns = `repeat(${participants.length + 1}, 1fr)`;
 }
 
 drawButton.addEventListener('click', () => {
