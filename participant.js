@@ -5,7 +5,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const data = urlParams.get('data');
 
     const randomImageUrl = 'https://source.unsplash.com/featured/?christmas,landscape';
-    backgroundContainer.style.backgroundImage = `url('${randomImageUrl}')`;
+
+    fetch(randomImageUrl)
+        .then(response => {
+            if (response.ok) {
+                backgroundContainer.style.backgroundImage = `url('${response.url}')`;
+            } else {
+                console.error('Failed to fetch random image.');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching random image:', error);
+        });
 
 
     if (data) {
