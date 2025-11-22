@@ -5,19 +5,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const drawId = urlParams.get('drawId');
     const participantId = urlParams.get('participantId');
 
-    const randomImageUrl = 'https://source.unsplash.com/featured/?christmas,landscape';
-
-    fetch(randomImageUrl)
-        .then(response => {
-            if (response.ok) {
-                backgroundContainer.style.backgroundImage = `url('${response.url}')`;
-            } else {
-                console.error('Failed to fetch random image.');
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching random image:', error);
-        });
+    const localImages = [
+        'images/annie-spratt-VDXtVYJVj7A-unsplash.jpg',
+        'images/chad-madden-SUTfFCAHV_A-unsplash.jpg',
+        'images/jeshoots-com-7VOyZ0-iO0o-unsplash.jpg',
+        'images/joanna-kosinska-_1T4ntNl324-unsplash.jpg',
+        'images/toni-cuenca-CvFARq2qu8Y-unsplash.jpg'
+    ];
+    const randomIndex = Math.floor(Math.random() * localImages.length);
+    const selectedImageUrl = localImages[randomIndex];
+    backgroundContainer.style.backgroundImage = `url('${selectedImageUrl}')`;
 
 
     if (drawId && participantId) {

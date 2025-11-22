@@ -284,12 +284,18 @@ linksDrawsButton.addEventListener('click', () => {
     const draw = drawHistory[selectedDraw];
     detailsModalTitle.textContent = `Links for Draw from ${new Date(draw.date).toLocaleString()}`;
     let table = '<table><tr><th>Participant</th><th>Link</th></tr>';
-    draw.assignments.forEach(assignment => {
-        console.log(assignment.giver);
-        const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?drawId=${draw.id}&participantId=${assignment.giver.id}`;
-        table += `<tr><td>${assignment.giver.name}</td><td><button class="copy-link-button" data-url="${url}">Copy</button></td></tr>`;
-    });
-    table += '</table>';
+            draw.assignments.forEach(assignment => {
+                console.log(assignment.giver);
+                let participantIdForUrl = assignment.giver.id;
+                let linkText = assignment.giver.name;
+                if (!participantIdForUrl) {
+                    console.warn(`Participant ID is undefined for giver: ${assignment.giver.name}. This indicates a potential data inconsistency.`);
+                    participantIdForUrl = 'undefined_id'; // Use a placeholder
+                    linkText += ' (ID missing)';
+                }
+                const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?drawId=${draw.id}&participantId=${participantIdForUrl}`;
+                table += `<tr><td>${linkText}</td><td><button class="copy-link-button" data-url="${url}">Copy</button></td></tr>`;
+            });    table += '</table>';
     detailsModalContent.innerHTML = table;
     detailsModal.style.display = 'block';
 
@@ -322,6 +328,12 @@ function loadData() {
 
     if (storedParticipants) {
         participants = JSON.parse(storedParticipants);
+        // Ensure all loaded participants have an ID
+        participants.forEach(p => {
+            if (!p.id) {
+                p.id = generateUniqueId(p.name + p.email);
+            }
+        });
         renderParticipants();
     }
 
@@ -331,6 +343,17 @@ function loadData() {
 
     if (storedDrawHistory) {
         drawHistory = JSON.parse(storedDrawHistory);
+        // Ensure all loaded assignments in drawHistory have participant IDs
+        drawHistory.forEach(draw => {
+            draw.assignments.forEach(assignment => {
+                if (assignment.giver && !assignment.giver.id) {
+                    assignment.giver.id = generateUniqueId(assignment.giver.name + assignment.giver.email);
+                }
+                if (assignment.receiver && !assignment.receiver.id) {
+                    assignment.receiver.id = generateUniqueId(assignment.receiver.name + assignment.receiver.email);
+                }
+            });
+        });
         renderDrawHistory();
     }
 
