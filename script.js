@@ -37,7 +37,7 @@ function generateUniqueId(str) {
         hash = (hash << 5) - hash + char;
         hash |= 0; // Convert to 32bit integer
     }
-    return Math.abs(hash).toString(16);
+    return  Math.abs(hash).toString(36).substr(0, 5);
 }
 
 participantForm.addEventListener('submit', (e) => {
@@ -49,7 +49,7 @@ participantForm.addEventListener('submit', (e) => {
     const email = emailInput.value;
 
     if (name && email) {
-        const id = generateUniqueId(email);
+        const id = generateUniqueId(name + email);
         participants.push({ id, name, email });
         renderParticipants();
         renderExclusionGrid();
@@ -238,6 +238,12 @@ function getSelectedDraw() {
 deleteDrawsButton.addEventListener('click', () => {
     const selectedDraw = getSelectedDraw();
     if (selectedDraw !== null) {
+        const draw = drawHistory[selectedDraw];
+        // Remove assignments from localStorage
+        draw.assignments.forEach(assignment => {
+            localStorage.removeItem(`assignment_${draw.id}_${assignment.giver.id}`);
+        });
+
         drawHistory.splice(selectedDraw, 1);
         saveData();
         renderDrawHistory();
@@ -275,7 +281,7 @@ linksDrawsButton.addEventListener('click', () => {
     detailsModalTitle.textContent = `Links for Draw from ${new Date(draw.date).toLocaleString()}`;
     let table = '<table><tr><th>Participant</th><th>Link</th></tr>';
     draw.assignments.forEach(assignment => {
-        const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?id=${assignment.giver.id}`;
+        const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?drawId=${draw.id}&participantId=${assignment.giver.id}`;
         table += `<tr><td>${assignment.giver.name}</td><td><button class="copy-link-button" data-url="${url}">Copy</button></td></tr>`;
     });
     table += '</table>';
@@ -348,13 +354,19 @@ acceptDrawButton.addEventListener('click', () => {
     const drawDate = new Date();
     const assignments = currentDraw;
 
-    // Store assignments in localStorage with participant ID as key
+    const draw = {
+        date: drawDate,
+        assignments: assignments,
+        id: generateUniqueId(drawDate.toISOString())
+    };
+
+    // Store assignments in localStorage with draw ID and participant ID as key
     assignments.forEach(assignment => {
-        localStorage.setItem(`assignment_${assignment.giver.id}`, JSON.stringify(assignment));
+        localStorage.setItem(`assignment_${draw.id}_${assignment.giver.id}`, JSON.stringify(assignment));
     });
 
 
-    drawHistory.push({ date: drawDate, assignments: assignments });
+    drawHistory.push(draw);
     saveData();
     renderDrawHistory();
     drawModal.style.display = 'none';

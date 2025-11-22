@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const assignedPersonElement = document.getElementById('assigned-person');
     const backgroundContainer = document.querySelector('.background-container');
     const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
+    const drawId = urlParams.get('drawId');
+    const participantId = urlParams.get('participantId');
 
     const randomImageUrl = 'https://source.unsplash.com/featured/?christmas,landscape';
 
@@ -19,9 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
 
-    if (id) {
+    if (drawId && participantId) {
         try {
-            const assignmentData = localStorage.getItem(`assignment_${id}`);
+            const assignmentData = localStorage.getItem(`assignment_${drawId}_${participantId}`);
             if (assignmentData) {
                 const assignment = JSON.parse(assignmentData);
                 assignedPersonElement.textContent = assignment.receiver.name;
