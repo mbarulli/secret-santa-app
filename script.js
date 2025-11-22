@@ -46,46 +46,48 @@ function generateUniqueId(str) {
 participantForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const textareaContent = participantTextarea.value;
-    const lines = textareaContent.split('\n');
+    const lines = textareaContent.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+    const newParticipantsMap = new Map();
+    const oldParticipantsMap = new Map(participants.map(p => [p.name, p])); // Map old participants by name for ID lookup
 
     lines.forEach(line => {
-        const trimmedLine = line.trim();
-        if (trimmedLine) {
-            const name = trimmedLine.split(' ')[0]; // Get the first word as name
-            const id = generateUniqueId(name); // Generate ID from name only
+        const name = line.split(' ')[0]; // Get the first word as name
+        let id;
 
-            // Check for duplicates before adding
-            if (!participants.some(p => p.id === id)) {
-                participants.push({ id, name }); // No email property
-            }
+        // Try to reuse ID if participant name already exists
+        if (oldParticipantsMap.has(name)) {
+            id = oldParticipantsMap.get(name).id;
+        } else {
+            // Generate a new ID if it's a new participant or a name change
+            id = generateUniqueId(name);
+        }
+
+        // Add to new map, ensuring unique names in the current submission
+        if (!newParticipantsMap.has(name)) {
+            newParticipantsMap.set(name, { id, name });
         }
     });
 
+    // Convert map values back to an array
+    participants = Array.from(newParticipantsMap.values());
+
+    // Update the UI and save data
     renderParticipants();
     renderExclusionGrid();
     saveData();
-    participantTextarea.value = ''; // Clear the textarea
 });
 
 function renderParticipants() {
     participantList.innerHTML = '';
-    participants.forEach((participant, index) => {
+    participants.forEach(participant => { // Removed index as it's not needed for remove button
         const li = document.createElement('li');
-        li.textContent = `${participant.name}`; // No email
-
-        const removeButton = document.createElement('button');
-        removeButton.textContent = 'Remove';
-        removeButton.classList.add('remove-button');
-        removeButton.addEventListener('click', () => {
-            participants.splice(index, 1);
-            renderParticipants();
-            renderExclusionGrid();
-            saveData();
-        });
-
-        li.appendChild(removeButton);
+        li.textContent = `${participant.name}`;
+        // No remove button needed as participants are managed via textarea
         participantList.appendChild(li);
     });
+    // Populate the textarea with current participants
+    participantTextarea.value = participants.map(p => p.name).join('\n');
 }
 
 function renderExclusionGrid() {
