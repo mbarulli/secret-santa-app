@@ -48,29 +48,55 @@ participantForm.addEventListener('submit', (e) => {
     const textareaContent = participantTextarea.value;
     const lines = textareaContent.split('\n').map(line => line.trim()).filter(line => line.length > 0);
 
-    const newParticipantsMap = new Map();
+    const newParticipantsMap = new Map(); // Map name to {id, name}
     const oldParticipantsMap = new Map(participants.map(p => [p.name, p])); // Map old participants by name for ID lookup
 
+    const tempExclusions = []; // To store parsed exclusions as {giverName, receiverName}
+
     lines.forEach(line => {
-        const name = line.split(' ')[0]; // Get the first word as name
-        let id;
+        const parts = line.split(' ');
+        const giverName = parts[0];
 
-        // Try to reuse ID if participant name already exists
-        if (oldParticipantsMap.has(name)) {
-            id = oldParticipantsMap.get(name).id;
-        } else {
-            // Generate a new ID if it's a new participant or a name change
-            id = generateUniqueId(name);
-        }
+        if (giverName) {
+            let giverId;
+            if (oldParticipantsMap.has(giverName)) {
+                giverId = oldParticipantsMap.get(giverName).id;
+            } else {
+                giverId = generateUniqueId(giverName);
+            }
+            if (!newParticipantsMap.has(giverName)) {
+                newParticipantsMap.set(giverName, { id: giverId, name: giverName });
+            }
 
-        // Add to new map, ensuring unique names in the current submission
-        if (!newParticipantsMap.has(name)) {
-            newParticipantsMap.set(name, { id, name });
+            // Parse exclusions from the rest of the line
+            for (let i = 1; i < parts.length; i++) {
+                const part = parts[i];
+                if (part.startsWith('!')) {
+                    const excludedReceiverName = part.substring(1);
+                    if (excludedReceiverName) {
+                        tempExclusions.push({ giverName: giverName, receiverName: excludedReceiverName });
+                    }
+                }
+            }
         }
     });
 
-    // Convert map values back to an array
+    // Update participants array
     participants = Array.from(newParticipantsMap.values());
+
+    // Now, update the global exclusions array based on parsed exclusions and current participants
+    exclusions = []; // Clear old exclusions
+    const currentParticipantsMap = new Map(participants.map(p => [p.name, p.id])); // Map current names to IDs
+
+    tempExclusions.forEach(excl => {
+        const giverId = currentParticipantsMap.get(excl.giverName);
+        const receiverId = currentParticipantsMap.get(excl.receiverName);
+
+        // Only add exclusion if both giver and receiver are valid participants
+        if (giverId && receiverId) {
+            exclusions.push({ giverId: giverId, receiverId: receiverId });
+        }
+    });
 
     // Update the UI and save data
     renderParticipants();
@@ -98,15 +124,20 @@ function renderExclusionGrid() {
     exclusionGridContainer.style.display = 'block';
     exclusionGrid.innerHTML = '';
 
+    // Build a temporary 2D exclusion matrix from the list of exclusions for rendering
+    const exclusionMatrix = Array(participants.length).fill(null).map(() => Array(participants.length).fill(false));
+    const participantIdToIndex = new Map(participants.map((p, index) => [p.id, index]));
+
+    exclusions.forEach(excl => {
+        const giverIndex = participantIdToIndex.get(excl.giverId);
+        const receiverIndex = participantIdToIndex.get(excl.receiverId);
+        if (giverIndex !== undefined && receiverIndex !== undefined) {
+            exclusionMatrix[giverIndex][receiverIndex] = true;
+        }
+    });
+
     // Dynamically set grid columns
     exclusionGrid.style.gridTemplateColumns = `min-content repeat(${participants.length}, minmax(100px, 1fr))`;
-
-
-    // Initialize exclusions matrix if it's not the right size
-    if (exclusions.length !== participants.length || exclusions[0].length !== participants.length) {
-        exclusions = Array(participants.length).fill(null).map(() => Array(participants.length).fill(false));
-    }
-
 
     // Create header row
     const headerRow = document.createElement('div');
@@ -133,16 +164,29 @@ function renderExclusionGrid() {
                 cell.textContent = 'X';
             } else if (i > j) {
                 // This is the lower triangle, leave it empty
-            }
-            else {
+            } else {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.classList.add('grid-checkbox');
-                checkbox.checked = exclusions[i][j];
+                checkbox.checked = exclusionMatrix[i][j]; // Use the temporary matrix for initial check
                 checkbox.addEventListener('change', () => {
-                    exclusions[i][j] = checkbox.checked;
-                    exclusions[j][i] = checkbox.checked; // Make exclusion bidirectional
+                    const giverId = participants[i].id;
+                    const receiverId = participants[j].id;
+
+                    if (checkbox.checked) {
+                        // Add exclusion (bidirectional)
+                        exclusions.push({ giverId: giverId, receiverId: receiverId });
+                        exclusions.push({ giverId: receiverId, receiverId: giverId });
+                    } else {
+                        // Remove exclusion (bidirectional)
+                        exclusions = exclusions.filter(excl =>
+                            !(excl.giverId === giverId && excl.receiverId === receiverId) &&
+                            !(excl.giverId === receiverId && excl.receiverId === giverId)
+                        );
+                    }
                     saveData();
+                    // Re-render the grid to reflect bidirectional changes immediately
+                    renderExclusionGrid();
                 });
                 cell.appendChild(checkbox);
             }
@@ -168,34 +212,44 @@ drawButton.addEventListener('click', () => {
 
 function drawNames() {
     let assignments = [];
-    const givers = [...Array(participants.length).keys()];
-    const receivers = [...Array(participants.length).keys()];
+    const availableGivers = [...participants]; // Copy of participants to act as givers
+    const availableReceivers = [...participants]; // Copy of participants to act as receivers
     let attempts = 0;
 
-    while (givers.length > 0) {
+    // Helper to check if an exclusion exists
+    const isExcluded = (giverId, receiverId) => {
+        return exclusions.some(excl => excl.giverId === giverId && excl.receiverId === receiverId);
+    };
+
+    while (availableGivers.length > 0) {
         if (attempts > 1000) { // Prevent infinite loops
             return null;
         }
-        const giverIndex = givers[0];
-        const potentialReceiverIndices = receivers.filter(receiverIndex => {
-            if (giverIndex === receiverIndex) return false;
-            if (exclusions[giverIndex][receiverIndex]) return false;
+
+        const giver = availableGivers[0];
+        const potentialReceivers = availableReceivers.filter(receiver => {
+            // A giver cannot be their own receiver
+            if (giver.id === receiver.id) return false;
+            // Check against configured exclusions
+            if (isExcluded(giver.id, receiver.id)) return false;
             return true;
         });
 
-        if (potentialReceiverIndices.length === 0) {
-            // Backtrack
-            givers.splice(0, givers.length, ...Array(participants.length).keys());
-            receivers.splice(0, receivers.length, ...Array(participants.length).keys());
+        if (potentialReceivers.length === 0) {
+            // Backtrack: Reset and try again
+            availableGivers.splice(0, availableGivers.length, ...participants);
+            availableReceivers.splice(0, availableReceivers.length, ...participants);
             assignments = [];
             attempts++;
             continue;
         }
 
-        const receiverIndex = potentialReceiverIndices[Math.floor(Math.random() * potentialReceiverIndices.length)];
-        assignments.push({ giver: participants[giverIndex], receiver: participants[receiverIndex] });
-        givers.splice(0, 1);
-        receivers.splice(receivers.indexOf(receiverIndex), 1);
+        const receiver = potentialReceivers[Math.floor(Math.random() * potentialReceivers.length)];
+        assignments.push({ giver: giver, receiver: receiver });
+
+        // Remove assigned giver and receiver for the next round
+        availableGivers.splice(availableGivers.indexOf(giver), 1);
+        availableReceivers.splice(availableReceivers.indexOf(receiver), 1);
     }
 
     return assignments;
@@ -356,6 +410,11 @@ function loadData() {
 
     if (storedExclusions) {
         exclusions = JSON.parse(storedExclusions);
+        // Filter out exclusions involving participants that no longer exist
+        const currentParticipantIds = new Set(participants.map(p => p.id));
+        exclusions = exclusions.filter(excl =>
+            currentParticipantIds.has(excl.giverId) && currentParticipantIds.has(excl.receiverId)
+        );
     }
 
     if (storedDrawHistory) {
