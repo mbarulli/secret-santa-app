@@ -553,7 +553,6 @@ acceptDrawButton.addEventListener('click', () => {
 
     // Store assignments in localStorage with draw ID and participant ID as key
     assignments.forEach(assignment => {
-        // Store the full assignment details for the giver
         const participantAssignmentData = {
             giverName: assignment.giver.name,
             receiverName: assignment.receiver.name
@@ -567,6 +566,30 @@ acceptDrawButton.addEventListener('click', () => {
     renderDrawHistory();
     renderMostRecentDraw(); // Call after draw is accepted
     drawModal.style.display = 'none';
+
+    // *** New: Generate and download JSON file for this draw ***
+    const drawDataForJson = {
+        drawId: draw.id,
+        assignments: assignments.map(assignment => ({
+            giverId: assignment.giver.id,
+            giverName: assignment.giver.name,
+            receiverId: assignment.receiver.id,
+            receiverName: assignment.receiver.name
+        }))
+    };
+    const jsonString = JSON.stringify(drawDataForJson, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `draw_${draw.id}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    alert(`Draw saved! Please save the 'draw_${draw.id}.json' file into a 'draws' folder in your hosted Secret Santa app to make participant links shareable.`);
 });
 
 redrawButton.addEventListener('click', () => {

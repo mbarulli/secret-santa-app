@@ -20,21 +20,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (drawId && participantId) {
         try {
-            const assignmentData = localStorage.getItem(`assignment_${drawId}_${participantId}`);
-            if (assignmentData) {
-                const assignmentDetails = JSON.parse(assignmentData);
-                pageTitleElement.textContent = `Ciao ${assignmentDetails.giverName}!`;
-                pageTitleElement.style.fontSize = '3em'; // Make font size much bigger
-                assignedPersonElement.textContent = assignmentDetails.receiverName;
-                assignedPersonElement.style.fontSize = '3em'; // Make font size much bigger
-            } else {
-                pageTitleElement.textContent = 'Assignment not found.';
-                assignedPersonElement.textContent = '';
-            }
+            // Attempt to fetch assignment from a JSON file (for distributable links)
+            fetch(`draws/draw_${drawId}.json`)
+                .then(response => {
+                    if (!response.ok) {
+                        // Fallback to localStorage if JSON file not found (for local testing/admin)
+                        const assignmentData = localStorage.getItem(`assignment_${drawId}_${participantId}`);
+                        if (assignmentData) {
+                            const assignmentDetails = JSON.parse(assignmentData);
+                            pageTitleElement.textContent = `Ciao ${assignmentDetails.giverName}!`;
+                            pageTitleElement.style.fontSize = '3em';
+                            assignedPersonElement.textContent = assignmentDetails.receiverName;
+                            assignedPersonElement.style.fontSize = '3em';
+                        } else {
+                            pageTitleElement.textContent = 'Assignment not found. (Local storage or JSON)';
+                            assignedPersonElement.textContent = '';
+                        }
+                        throw new Error('Draw JSON not found or network error, falling back to local storage.');
+                    }
+                    return response.json();
+                })
+                .then(drawData => {
+                    const assignment = drawData.assignments.find(a => a.giverId === participantId);
+                    if (assignment) {
+                        pageTitleElement.textContent = `Ciao ${assignment.giverName}!`;
+                        pageTitleElement.style.fontSize = '3em';
+                        assignedPersonElement.textContent = assignment.receiverName;
+                        assignedPersonElement.style.fontSize = '3em';
+                    } else {
+                        pageTitleElement.textContent = 'Participant not found in draw JSON.';
+                        assignedPersonElement.textContent = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching draw data:', error);
+                    // Error already handled in the .then(response) block for not-ok response
+                    // This catch block handles other fetch errors (e.g., network issues)
+                    if (!pageTitleElement.textContent.includes('Assignment not found')) { // Avoid overwriting specific messages
+                        pageTitleElement.textContent = 'Error: Could not retrieve assignment data.';
+                        assignedPersonElement.textContent = '';
+                    }
+                });
         } catch (error) {
-            pageTitleElement.textContent = 'Error: Could not retrieve assignment.';
+            console.error('Unexpected error:', error);
+            pageTitleElement.textContent = 'Unexpected error occurred.';
             assignedPersonElement.textContent = '';
-            console.error('Error retrieving assignment:', error);
         }
     } else {
         pageTitleElement.textContent = 'No assignment ID found.';
