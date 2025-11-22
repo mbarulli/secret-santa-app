@@ -158,8 +158,8 @@ drawButton.addEventListener('click', () => {
 
 function drawNames() {
     let assignments = [];
-    let givers = [...participants.map(p => ({...p}))]; // Deep copy to preserve id
-    let receivers = [...participants.map(p => ({...p}))]; // Deep copy to preserve id
+    let givers = JSON.parse(JSON.stringify(participants)); // Deep copy to preserve id
+    let receivers = JSON.parse(JSON.stringify(participants)); // Deep copy to preserve id
     let attempts = 0;
 
     while (givers.length > 0) {
@@ -177,8 +177,8 @@ function drawNames() {
 
         if (potentialReceivers.length === 0) {
             // Backtrack
-            givers = [...participants.map(p => ({...p}))];
-            receivers = [...participants.map(p => ({...p}))];
+            givers = JSON.parse(JSON.stringify(participants));
+            receivers = JSON.parse(JSON.stringify(participants));
             assignments = [];
             attempts++;
             continue;
