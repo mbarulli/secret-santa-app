@@ -106,14 +106,25 @@ participantForm.addEventListener('submit', (e) => {
 
 function renderParticipants() {
     participantList.innerHTML = '';
-    participants.forEach(participant => { // Removed index as it's not needed for remove button
+    participants.forEach(participant => {
         const li = document.createElement('li');
         li.textContent = `${participant.name}`;
-        // No remove button needed as participants are managed via textarea
         participantList.appendChild(li);
     });
-    // Populate the textarea with current participants
-    participantTextarea.value = participants.map(p => p.name).join('\n');
+
+    // Populate the textarea with current participants including their exclusions
+    participantTextarea.value = participants.map(giver => {
+        let line = giver.name;
+        // Find all exclusions where 'giver' is the giver
+        const relevantExclusions = exclusions.filter(excl => excl.giverId === giver.id);
+        relevantExclusions.forEach(excl => {
+            const receiver = participants.find(p => p.id === excl.receiverId);
+            if (receiver) {
+                line += ` !${receiver.name}`;
+            }
+        });
+        return line;
+    }).join('\n');
 }
 
 function renderExclusionGrid() {
@@ -169,25 +180,8 @@ function renderExclusionGrid() {
                 checkbox.type = 'checkbox';
                 checkbox.classList.add('grid-checkbox');
                 checkbox.checked = exclusionMatrix[i][j]; // Use the temporary matrix for initial check
-                checkbox.addEventListener('change', () => {
-                    const giverId = participants[i].id;
-                    const receiverId = participants[j].id;
-
-                    if (checkbox.checked) {
-                        // Add exclusion (bidirectional)
-                        exclusions.push({ giverId: giverId, receiverId: receiverId });
-                        exclusions.push({ giverId: receiverId, receiverId: giverId });
-                    } else {
-                        // Remove exclusion (bidirectional)
-                        exclusions = exclusions.filter(excl =>
-                            !(excl.giverId === giverId && excl.receiverId === receiverId) &&
-                            !(excl.giverId === receiverId && excl.receiverId === giverId)
-                        );
-                    }
-                    saveData();
-                    // Re-render the grid to reflect bidirectional changes immediately
-                    renderExclusionGrid();
-                });
+                checkbox.disabled = true; // Make it read-only
+                // No event listener needed as it's read-only
                 cell.appendChild(checkbox);
             }
             exclusionGrid.appendChild(cell);
