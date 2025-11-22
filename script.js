@@ -52,13 +52,11 @@ participantForm.addEventListener('submit', (e) => {
         const trimmedLine = line.trim();
         if (trimmedLine) {
             const name = trimmedLine.split(' ')[0]; // Get the first word as name
-            // Generate a dummy email, converting name to a more email-friendly format
-            const dummyEmail = `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@example.com`;
-            const id = generateUniqueId(name + dummyEmail);
+            const id = generateUniqueId(name); // Generate ID from name only
 
             // Check for duplicates before adding
             if (!participants.some(p => p.id === id)) {
-                participants.push({ id, name, email: dummyEmail });
+                participants.push({ id, name }); // No email property
             }
         }
     });
@@ -73,7 +71,7 @@ function renderParticipants() {
     participantList.innerHTML = '';
     participants.forEach((participant, index) => {
         const li = document.createElement('li');
-        li.textContent = `${participant.name} (${participant.email})`;
+        li.textContent = `${participant.name}`; // No email
 
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
@@ -340,10 +338,15 @@ function loadData() {
 
     if (storedParticipants) {
         participants = JSON.parse(storedParticipants);
-        // Ensure all loaded participants have an ID
+        // Ensure all loaded participants have an ID and remove email property if present
         participants.forEach(p => {
             if (!p.id) {
-                p.id = generateUniqueId(p.name + p.email);
+                // If ID was generated with email before, re-generate with just name
+                p.id = generateUniqueId(p.name);
+            }
+            // Ensure no email property exists for participants loaded from old data
+            if (p.email) {
+                delete p.email;
             }
         });
         renderParticipants();
@@ -358,11 +361,21 @@ function loadData() {
         // Ensure all loaded assignments in drawHistory have participant IDs
         drawHistory.forEach(draw => {
             draw.assignments.forEach(assignment => {
-                if (assignment.giver && !assignment.giver.id) {
-                    assignment.giver.id = generateUniqueId(assignment.giver.name + assignment.giver.email);
+                if (assignment.giver) {
+                    if (!assignment.giver.id) {
+                        assignment.giver.id = generateUniqueId(assignment.giver.name);
+                    }
+                    if (assignment.giver.email) { // Remove email property from giver
+                        delete assignment.giver.email;
+                    }
                 }
-                if (assignment.receiver && !assignment.receiver.id) {
-                    assignment.receiver.id = generateUniqueId(assignment.receiver.name + assignment.receiver.email);
+                if (assignment.receiver) {
+                    if (!assignment.receiver.id) {
+                        assignment.receiver.id = generateUniqueId(assignment.receiver.name);
+                    }
+                    if (assignment.receiver.email) { // Remove email property from receiver
+                        delete assignment.receiver.email;
+                    }
                 }
             });
         });
@@ -405,9 +418,7 @@ acceptDrawButton.addEventListener('click', () => {
         // Store the full assignment details for the giver
         const participantAssignmentData = {
             giverName: assignment.giver.name,
-            giverEmail: assignment.giver.email,
-            receiverName: assignment.receiver.name,
-            receiverEmail: assignment.receiver.email
+            receiverName: assignment.receiver.name
         };
         localStorage.setItem(`assignment_${draw.id}_${assignment.giver.id}`, JSON.stringify(participantAssignmentData));
     });
