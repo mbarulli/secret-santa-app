@@ -22,6 +22,8 @@ const detailsModalTitle = document.getElementById('details-modal-title');
 const detailsModalContent = document.getElementById('details-modal-content');
 const detailsModalCloseButton = detailsModal.querySelector('.close-button');
 
+const versionTimestampElement = document.getElementById('version-timestamp');
+
 let participants = [];
 let exclusions = [];
 let drawHistory = [];
@@ -29,6 +31,10 @@ let currentDraw = [];
 
 // Load data from localStorage on page load
 loadData();
+
+// Display version timestamp
+versionTimestampElement.textContent = `Version: ${new Date().toLocaleString()}`;
+
 
 function generateUniqueId(str) {
     let hash = 0;
