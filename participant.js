@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const assignmentData = localStorage.getItem(`assignment_${drawId}_${participantId}`);
             if (assignmentData) {
-                const assignment = JSON.parse(assignmentData);
-                assignedPersonElement.textContent = assignment.receiver.name;
+                const receiver = JSON.parse(assignmentData);
+                assignedPersonElement.textContent = receiver.name;
             } else {
                 assignedPersonElement.textContent = 'Assignment not found.';
             }

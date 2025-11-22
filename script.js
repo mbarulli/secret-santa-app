@@ -362,7 +362,7 @@ acceptDrawButton.addEventListener('click', () => {
 
     // Store assignments in localStorage with draw ID and participant ID as key
     assignments.forEach(assignment => {
-        localStorage.setItem(`assignment_${draw.id}_${assignment.giver.id}`, JSON.stringify(assignment));
+        localStorage.setItem(`assignment_${draw.id}_${assignment.giver.id}`, JSON.stringify(assignment.receiver));
     });
 
 
