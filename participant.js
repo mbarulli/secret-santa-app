@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (assignmentData) {
                 const assignmentDetails = JSON.parse(assignmentData);
                 pageTitleElement.textContent = `Ciao ${assignmentDetails.giverName}!`;
+                pageTitleElement.style.fontSize = '3em'; // Make font size much bigger
                 assignedPersonElement.textContent = assignmentDetails.receiverName;
                 assignedPersonElement.style.fontSize = '3em'; // Make font size much bigger
             } else {
