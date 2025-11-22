@@ -285,6 +285,7 @@ linksDrawsButton.addEventListener('click', () => {
     detailsModalTitle.textContent = `Links for Draw from ${new Date(draw.date).toLocaleString()}`;
     let table = '<table><tr><th>Participant</th><th>Link</th></tr>';
     draw.assignments.forEach(assignment => {
+        console.log(assignment.giver);
         const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?drawId=${draw.id}&participantId=${assignment.giver.id}`;
         table += `<tr><td>${assignment.giver.name}</td><td><button class="copy-link-button" data-url="${url}">Copy</button></td></tr>`;
     });
