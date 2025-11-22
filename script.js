@@ -27,8 +27,10 @@ function renderMostRecentDraw() {
     if (drawHistory.length > 0) {
         mostRecentDrawContainer.style.display = 'block';
         const mostRecentDraw = drawHistory[drawHistory.length - 1]; // Get the last draw
+        // Sort assignments alphabetically by giver name
+        const sortedAssignments = [...mostRecentDraw.assignments].sort((a, b) => a.giver.name.localeCompare(b.giver.name));
 
-        mostRecentDraw.assignments.forEach(assignment => {
+        sortedAssignments.forEach(assignment => {
             const tr = document.createElement('tr');
 
             // Giver Name
@@ -45,19 +47,26 @@ function renderMostRecentDraw() {
             const linkTd = document.createElement('td');
             const participantIdForUrl = assignment.giver.id;
             const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?drawId=${mostRecentDraw.id}&participantId=${participantIdForUrl}`;
-            const copyButton = document.createElement('button');
-            copyButton.textContent = 'Copy Link';
-            copyButton.classList.add('copy-link-button'); // Reuse existing copy button style
-            copyButton.dataset.url = url;
-            copyButton.addEventListener('click', () => {
+            
+            const urlSpan = document.createElement('span');
+            urlSpan.textContent = url;
+            urlSpan.style.marginRight = '5px'; // Add some space
+
+            const copyIcon = document.createElement('span');
+            copyIcon.innerHTML = '&#x1F4CB;'; // Clipboard emoji
+            copyIcon.title = 'Copy Link';
+            copyIcon.classList.add('action-icon'); // Reuse action-icon styling
+            copyIcon.style.cursor = 'pointer';
+            copyIcon.addEventListener('click', () => {
                 navigator.clipboard.writeText(url).then(() => {
-                    alert('Link copied to clipboard!');
+                    showTemporaryMessage('Link copied to clipboard!');
                 }, (err) => {
-                    alert('Failed to copy link.');
+                    alert('Failed to copy link.'); // Fallback to alert if copy fails
                     console.error('Could not copy text: ', err);
                 });
             });
-            linkTd.appendChild(copyButton);
+            linkTd.appendChild(urlSpan);
+            linkTd.appendChild(copyIcon);
             tr.appendChild(linkTd);
 
             mostRecentDrawTbody.appendChild(tr);
@@ -405,7 +414,7 @@ function handleLinksDraw(drawId) {
             button.addEventListener('click', () => {
                 const urlToCopy = button.dataset.url;
                 navigator.clipboard.writeText(urlToCopy).then(() => {
-                    alert('Link copied to clipboard!');
+                    showTemporaryMessage('Link copied to clipboard!');
                 }, (err) => {
                     alert('Failed to copy link.');
                     console.error('Could not copy text: ', err);
@@ -413,6 +422,38 @@ function handleLinksDraw(drawId) {
             });
         });
     }
+}
+
+
+function showTemporaryMessage(message, duration = 2000) {
+    const messageContainer = document.createElement('div');
+    messageContainer.textContent = message;
+    messageContainer.style.position = 'fixed';
+    messageContainer.style.bottom = '20px';
+    messageContainer.style.left = '50%';
+    messageContainer.style.transform = 'translateX(-50%)';
+    messageContainer.style.backgroundColor = '#28a745'; // Green background
+    messageContainer.style.color = 'white';
+    messageContainer.style.padding = '10px 20px';
+    messageContainer.style.borderRadius = '5px';
+    messageContainer.style.zIndex = '1000';
+    messageContainer.style.opacity = '0';
+    messageContainer.style.transition = 'opacity 0.5s ease-in-out';
+
+    document.body.appendChild(messageContainer);
+
+    // Fade in
+    setTimeout(() => {
+        messageContainer.style.opacity = '1';
+    }, 10); // Small delay to trigger transition
+
+    // Fade out and remove
+    setTimeout(() => {
+        messageContainer.style.opacity = '0';
+        messageContainer.addEventListener('transitionend', () => {
+            messageContainer.remove();
+        });
+    }, duration);
 }
 
 
