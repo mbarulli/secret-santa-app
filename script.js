@@ -158,36 +158,34 @@ drawButton.addEventListener('click', () => {
 
 function drawNames() {
     let assignments = [];
-    let givers = JSON.parse(JSON.stringify(participants)); // Deep copy to preserve id
-    let receivers = JSON.parse(JSON.stringify(participants)); // Deep copy to preserve id
+    const givers = [...Array(participants.length).keys()];
+    const receivers = [...Array(participants.length).keys()];
     let attempts = 0;
 
     while (givers.length > 0) {
         if (attempts > 1000) { // Prevent infinite loops
             return null;
         }
-        let giver = givers[0];
-        let potentialReceivers = receivers.filter(receiver => {
-            if (giver.email === receiver.email) return false;
-            const giverIndex = participants.findIndex(p => p.email === giver.email);
-            const receiverIndex = participants.findIndex(p => p.email === receiver.email);
+        const giverIndex = givers[0];
+        const potentialReceiverIndices = receivers.filter(receiverIndex => {
+            if (giverIndex === receiverIndex) return false;
             if (exclusions[giverIndex][receiverIndex]) return false;
             return true;
         });
 
-        if (potentialReceivers.length === 0) {
+        if (potentialReceiverIndices.length === 0) {
             // Backtrack
-            givers = JSON.parse(JSON.stringify(participants));
-            receivers = JSON.parse(JSON.stringify(participants));
+            givers.splice(0, givers.length, ...Array(participants.length).keys());
+            receivers.splice(0, receivers.length, ...Array(participants.length).keys());
             assignments = [];
             attempts++;
             continue;
         }
 
-        let receiver = potentialReceivers[Math.floor(Math.random() * potentialReceivers.length)];
-        assignments.push({ giver, receiver });
+        const receiverIndex = potentialReceiverIndices[Math.floor(Math.random() * potentialReceiverIndices.length)];
+        assignments.push({ giver: participants[giverIndex], receiver: participants[receiverIndex] });
         givers.splice(0, 1);
-        receivers.splice(receivers.indexOf(receiver), 1);
+        receivers.splice(receivers.indexOf(receiverIndex), 1);
     }
 
     return assignments;
