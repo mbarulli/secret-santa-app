@@ -4,10 +4,6 @@ const drawButton = document.getElementById('draw-button');
 const exclusionGridContainer = document.getElementById('exclusion-grid-container');
 const exclusionGrid = document.getElementById('exclusion-grid');
 const drawHistoryContainer = document.getElementById('draw-history-container');
-const drawHistoryList = document.getElementById('draw-history');
-const deleteDrawsButton = document.getElementById('delete-draws');
-const detailsDrawsButton = document.getElementById('details-draws');
-const linksDrawsButton = document.getElementById('links-draws');
 
 // Draw Confirmation Modal elements
 const drawModal = document.getElementById('draw-modal');
@@ -207,112 +203,120 @@ function renderModalResults(results) {
 }
 
 function renderDrawHistory() {
-    drawHistoryList.innerHTML = '';
+    const drawHistoryTableBody = document.getElementById('draw-history');
+    drawHistoryTableBody.innerHTML = ''; // Clear existing content
+
     if (drawHistory.length > 0) {
         drawHistoryContainer.style.display = 'block';
+        drawHistory.forEach((draw) => {
+            const tr = document.createElement('tr');
+
+            // Draw Name Cell
+            const drawNameTd = document.createElement('td');
+            const date = new Date(draw.date);
+            drawNameTd.textContent = `Draw from ${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            tr.appendChild(drawNameTd);
+
+            // Actions Cell
+            const actionsTd = document.createElement('td');
+            actionsTd.classList.add('actions-cell'); // Add a class for styling
+
+            // Delete Icon
+            const deleteIcon = document.createElement('span');
+            deleteIcon.innerHTML = '&#x1F5D1;'; // Bin icon
+            deleteIcon.title = 'Delete Draw';
+            deleteIcon.classList.add('action-icon');
+            deleteIcon.addEventListener('click', () => handleDeleteDraw(draw.id));
+            actionsTd.appendChild(deleteIcon);
+
+            // Details Icon
+            const detailsIcon = document.createElement('span');
+            detailsIcon.innerHTML = '&#x1F441;'; // Eye icon
+            detailsIcon.title = 'View Details';
+            detailsIcon.classList.add('action-icon');
+            detailsIcon.addEventListener('click', () => handleDetailsDraw(draw.id));
+            actionsTd.appendChild(detailsIcon);
+
+            // Links Icon
+            const linksIcon = document.createElement('span');
+            linksIcon.innerHTML = '&#x1F517;'; // Chain link icon
+            linksIcon.title = 'Get Links';
+            linksIcon.classList.add('action-icon');
+            linksIcon.addEventListener('click', () => handleLinksDraw(draw.id));
+            actionsTd.appendChild(linksIcon);
+
+            tr.appendChild(actionsTd);
+            drawHistoryTableBody.appendChild(tr);
+        });
     } else {
         drawHistoryContainer.style.display = 'none';
     }
-
-    drawHistory.forEach((draw, index) => {
-        const li = document.createElement('li');
-        const radio = document.createElement('input');
-        radio.type = 'radio';
-        radio.name = 'draw-history-selection';
-        radio.dataset.index = index;
-        li.appendChild(radio);
-
-        const date = new Date(draw.date).toLocaleString();
-        const label = document.createElement('label');
-        label.textContent = `Draw from ${date}`;
-        li.appendChild(label);
-
-        drawHistoryList.appendChild(li);
-    });
 }
 
-function getSelectedDraw() {
-    const selectedRadio = drawHistoryList.querySelector('input[type="radio"]:checked');
-    if (selectedRadio) {
-        return parseInt(selectedRadio.dataset.index);
-    }
-    return null;
-}
 
-deleteDrawsButton.addEventListener('click', () => {
-    const selectedDraw = getSelectedDraw();
-    if (selectedDraw !== null) {
-        const draw = drawHistory[selectedDraw];
+function handleDeleteDraw(drawId) {
+    const drawIndex = drawHistory.findIndex(draw => draw.id === drawId);
+    if (drawIndex > -1) {
+        const draw = drawHistory[drawIndex];
         // Remove assignments from localStorage
         draw.assignments.forEach(assignment => {
             localStorage.removeItem(`assignment_${draw.id}_${assignment.giver.id}`);
         });
-
-        drawHistory.splice(selectedDraw, 1);
+        drawHistory.splice(drawIndex, 1);
         saveData();
         renderDrawHistory();
-    } else {
-        alert('Please select a draw to delete.');
     }
-});
+}
 
-detailsDrawsButton.addEventListener('click', () => {
-    const selectedDraw = getSelectedDraw();
-    if (selectedDraw === null) {
-        alert('Please select a draw to see the details.');
-        return;
+function handleDetailsDraw(drawId) {
+    const draw = drawHistory.find(d => d.id === drawId);
+    if (draw) {
+        detailsModalTitle.textContent = `Details for Draw from ${new Date(draw.date).toLocaleString()}`;
+        let table = '<table><tr><th>Santa</th><th>For</th></tr>';
+        draw.assignments.forEach(assignment => {
+            table += `<tr><td>${assignment.giver.name}</td><td>${assignment.receiver.name}</td></tr>`;
+        });
+        table += '</table>';
+        detailsModalContent.innerHTML = table;
+        detailsModal.style.display = 'block';
     }
+}
 
-    const draw = drawHistory[selectedDraw];
-    detailsModalTitle.textContent = `Details for Draw from ${new Date(draw.date).toLocaleString()}`;
-    let table = '<table><tr><th>Santa</th><th>For</th></tr>';
-    draw.assignments.forEach(assignment => {
-        table += `<tr><td>${assignment.giver.name}</td><td>${assignment.receiver.name}</td></tr>`;
-    });
-    table += '</table>';
-    detailsModalContent.innerHTML = table;
-    detailsModal.style.display = 'block';
-});
+function handleLinksDraw(drawId) {
+    const draw = drawHistory.find(d => d.id === drawId);
+    if (draw) {
+        detailsModalTitle.textContent = `Links for Draw from ${new Date(draw.date).toLocaleString()}`;
+        let table = '<table><tr><th>Participant</th><th>Link</th></tr>';
+        draw.assignments.forEach(assignment => {
+            let participantIdForUrl = assignment.giver.id;
+            let linkText = assignment.giver.name;
+            if (!participantIdForUrl) {
+                console.warn(`Participant ID is undefined for giver: ${assignment.giver.name}. This indicates a potential data inconsistency.`);
+                participantIdForUrl = 'undefined_id'; // Use a placeholder
+                linkText += ' (ID missing)';
+            }
+            const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?drawId=${draw.id}&participantId=${participantIdForUrl}`;
+            table += `<tr><td>${linkText}</td><td><button class="copy-link-button" data-url="${url}">Copy</button></td></tr>`;
+        });
+        table += '</table>';
+        detailsModalContent.innerHTML = table;
+        detailsModal.style.display = 'block';
 
-linksDrawsButton.addEventListener('click', () => {
-    const selectedDraw = getSelectedDraw();
-    if (selectedDraw === null) {
-        alert('Please select a draw to see the links.');
-        return;
-    }
-
-    const draw = drawHistory[selectedDraw];
-    detailsModalTitle.textContent = `Links for Draw from ${new Date(draw.date).toLocaleString()}`;
-    let table = '<table><tr><th>Participant</th><th>Link</th></tr>';
-            draw.assignments.forEach(assignment => {
-                console.log(assignment.giver);
-                let participantIdForUrl = assignment.giver.id;
-                let linkText = assignment.giver.name;
-                if (!participantIdForUrl) {
-                    console.warn(`Participant ID is undefined for giver: ${assignment.giver.name}. This indicates a potential data inconsistency.`);
-                    participantIdForUrl = 'undefined_id'; // Use a placeholder
-                    linkText += ' (ID missing)';
-                }
-                const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?drawId=${draw.id}&participantId=${participantIdForUrl}`;
-                table += `<tr><td>${linkText}</td><td><button class="copy-link-button" data-url="${url}">Copy</button></td></tr>`;
-            });    table += '</table>';
-    detailsModalContent.innerHTML = table;
-    detailsModal.style.display = 'block';
-
-    // Add event listeners to the copy buttons
-    const copyButtons = detailsModalContent.querySelectorAll('.copy-link-button');
-    copyButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const urlToCopy = button.dataset.url;
-            navigator.clipboard.writeText(urlToCopy).then(() => {
-                alert('Link copied to clipboard!');
-            }, (err) => {
-                alert('Failed to copy link.');
-                console.error('Could not copy text: ', err);
+        // Add event listeners to the copy buttons
+        const copyButtons = detailsModalContent.querySelectorAll('.copy-link-button');
+        copyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const urlToCopy = button.dataset.url;
+                navigator.clipboard.writeText(urlToCopy).then(() => {
+                    alert('Link copied to clipboard!');
+                }, (err) => {
+                    alert('Failed to copy link.');
+                    console.error('Could not copy text: ', err);
+                });
             });
         });
-    });
-});
+    }
+}
 
 
 function saveData() {

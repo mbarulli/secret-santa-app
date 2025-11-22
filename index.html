@@ -33,12 +33,17 @@
             </div>
             <div id="draw-history-container" style="display: none;">
                 <h3>Draw History</h3>
-                <ul id="draw-history"></ul>
-                <div class="history-actions">
-                    <button id="delete-draws">Delete</button>
-                    <button id="details-draws">Details</button>
-                    <button id="links-draws">Links</button>
-                </div>
+                <table id="draw-history-table">
+                    <thead>
+                        <tr>
+                            <th>Draw</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="draw-history">
+                        <!-- Draw history rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
             </div>
             <button id="draw-button">New Draw</button>
         </div>

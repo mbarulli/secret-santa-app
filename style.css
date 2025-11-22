@@ -248,3 +248,15 @@ button:hover {
 #details-modal-content th {
     background-color: #f2f2f2;
 }
+
+/* Style for action icons in draw history table */
+.action-icon {
+    cursor: pointer;
+    margin-left: 8px;
+    font-size: 1.2em;
+    color: #007bff; /* A blue color, can be adjusted */
+}
+
+.action-icon:hover {
+    color: #0056b3; /* Darker blue on hover */
+}
