@@ -34,6 +34,12 @@ body {
     z-index: 0;
 }
 
+/* Specific styling for the participant page container */
+.container-participant {
+    max-width: 600px; /* Make it smaller than the admin page */
+}
+
+
 h1, h2, h3 {
     text-align: center;
 }
@@ -259,4 +265,20 @@ button:hover {
 
 .action-icon:hover {
     color: #0056b3; /* Darker blue on hover */
+}
+
+/* Style for temporary message */
+.temp-message {
+    /* Styles already defined in JS, adding a basic class for consistency if needed */
+    /* background-color: #28a745; */
+    /* color: white; */
+    /* padding: 10px 20px; */
+    /* border-radius: 5px; */
+    /* position: fixed; */
+    /* bottom: 20px; */
+    /* left: 50%; */
+    /* transform: translateX(-50%); */
+    /* z-index: 1000; */
+    /* opacity: 0; */
+    /* transition: opacity 0.5s ease-in-out; */
 }
