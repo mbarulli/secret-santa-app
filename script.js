@@ -1,10 +1,12 @@
 const participantForm = document.getElementById('participant-form');
-const participantList = document.getElementById('participants');
 const drawButton = document.getElementById('draw-button');
 const exclusionGridContainer = document.getElementById('exclusion-grid-container');
 const exclusionGrid = document.getElementById('exclusion-grid');
 const drawHistoryContainer = document.getElementById('draw-history-container');
 const participantTextarea = document.getElementById('participant-textarea'); // New element
+
+const mostRecentDrawContainer = document.getElementById('most-recent-draw-container');
+const mostRecentDrawTbody = document.getElementById('most-recent-draw-tbody');
 
 // Draw Confirmation Modal elements
 const drawModal = document.getElementById('draw-modal');
@@ -18,6 +20,52 @@ const detailsModal = document.getElementById('details-modal');
 const detailsModalTitle = document.getElementById('details-modal-title');
 const detailsModalContent = document.getElementById('details-modal-content');
 const detailsModalCloseButton = detailsModal.querySelector('.close-button');
+
+function renderMostRecentDraw() {
+    mostRecentDrawTbody.innerHTML = ''; // Clear previous results
+
+    if (drawHistory.length > 0) {
+        mostRecentDrawContainer.style.display = 'block';
+        const mostRecentDraw = drawHistory[drawHistory.length - 1]; // Get the last draw
+
+        mostRecentDraw.assignments.forEach(assignment => {
+            const tr = document.createElement('tr');
+
+            // Giver Name
+            const giverTd = document.createElement('td');
+            giverTd.textContent = assignment.giver.name;
+            tr.appendChild(giverTd);
+
+            // Receiver Name
+            const receiverTd = document.createElement('td');
+            receiverTd.textContent = assignment.receiver.name;
+            tr.appendChild(receiverTd);
+
+            // Link for Giver
+            const linkTd = document.createElement('td');
+            const participantIdForUrl = assignment.giver.id;
+            const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?drawId=${mostRecentDraw.id}&participantId=${participantIdForUrl}`;
+            const copyButton = document.createElement('button');
+            copyButton.textContent = 'Copy Link';
+            copyButton.classList.add('copy-link-button'); // Reuse existing copy button style
+            copyButton.dataset.url = url;
+            copyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Link copied to clipboard!');
+                }, (err) => {
+                    alert('Failed to copy link.');
+                    console.error('Could not copy text: ', err);
+                });
+            });
+            linkTd.appendChild(copyButton);
+            tr.appendChild(linkTd);
+
+            mostRecentDrawTbody.appendChild(tr);
+        });
+    } else {
+        mostRecentDrawContainer.style.display = 'none';
+    }
+}
 
 const versionTimestampElement = document.getElementById('version-timestamp');
 
@@ -105,13 +153,6 @@ participantForm.addEventListener('submit', (e) => {
 });
 
 function renderParticipants() {
-    participantList.innerHTML = '';
-    participants.forEach(participant => {
-        const li = document.createElement('li');
-        li.textContent = `${participant.name}`;
-        participantList.appendChild(li);
-    });
-
     // Populate the textarea with current participants including their exclusions
     participantTextarea.value = participants.map(giver => {
         let line = giver.name;
@@ -435,6 +476,7 @@ function loadData() {
             });
         });
         renderDrawHistory();
+        renderMostRecentDraw(); // Call after draw history is loaded
     }
 
     renderExclusionGrid();
@@ -482,6 +524,7 @@ acceptDrawButton.addEventListener('click', () => {
     drawHistory.push(draw);
     saveData();
     renderDrawHistory();
+    renderMostRecentDraw(); // Call after draw is accepted
     drawModal.style.display = 'none';
 });
 

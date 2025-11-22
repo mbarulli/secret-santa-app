@@ -19,14 +19,26 @@
                 </div>
                 <button type="submit">Update Participants</button>
             </form>
-            <div id="participant-list">
-                <h3>Participants</h3>
-                <ul id="participants"></ul>
-            </div>
             <div id="exclusion-grid-container" style="display: none;">
                 <h3>Exclude Combinations</h3>
                 <div id="exclusion-grid"></div>
             </div>
+            <div id="most-recent-draw-container" style="display: none; margin-bottom: 2rem;">
+                <h3>Most Recent Draw</h3>
+                <table id="most-recent-draw-table">
+                    <thead>
+                        <tr>
+                            <th>Giver</th>
+                            <th>Receiver</th>
+                            <th>Link</th>
+                        </tr>
+                    </thead>
+                    <tbody id="most-recent-draw-tbody">
+                        <!-- Most recent draw results will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
             <div id="draw-history-container" style="display: none;">
                 <h3>Draw History</h3>
                 <table id="draw-history-table">
