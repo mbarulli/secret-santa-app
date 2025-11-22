@@ -30,6 +30,16 @@ let currentDraw = [];
 // Load data from localStorage on page load
 loadData();
 
+function generateUniqueId(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return Math.abs(hash).toString(16);
+}
+
 participantForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const nameInput = document.getElementById('name');
@@ -39,7 +49,8 @@ participantForm.addEventListener('submit', (e) => {
     const email = emailInput.value;
 
     if (name && email) {
-        participants.push({ name, email });
+        const id = generateUniqueId(email);
+        participants.push({ id, name, email });
         renderParticipants();
         renderExclusionGrid();
         saveData();
@@ -264,8 +275,7 @@ linksDrawsButton.addEventListener('click', () => {
     detailsModalTitle.textContent = `Links for Draw from ${new Date(draw.date).toLocaleString()}`;
     let table = '<table><tr><th>Participant</th><th>Link</th></tr>';
     draw.assignments.forEach(assignment => {
-        const data = btoa(JSON.stringify(assignment));
-        const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?data=${data}`;
+        const url = `${window.location.origin}${window.location.pathname.replace('index.html', '')}participant.html?id=${assignment.giver.id}`;
         table += `<tr><td>${assignment.giver.name}</td><td><button class="copy-link-button" data-url="${url}">Copy</button></td></tr>`;
     });
     table += '</table>';
@@ -335,7 +345,16 @@ window.addEventListener('click', (event) => {
 });
 
 acceptDrawButton.addEventListener('click', () => {
-    drawHistory.push({ date: new Date(), assignments: currentDraw });
+    const drawDate = new Date();
+    const assignments = currentDraw;
+
+    // Store assignments in localStorage with participant ID as key
+    assignments.forEach(assignment => {
+        localStorage.setItem(`assignment_${assignment.giver.id}`, JSON.stringify(assignment));
+    });
+
+
+    drawHistory.push({ date: drawDate, assignments: assignments });
     saveData();
     renderDrawHistory();
     drawModal.style.display = 'none';
