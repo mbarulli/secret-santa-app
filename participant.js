@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const assignedPersonElement = document.getElementById('assigned-person');
+    const pageTitleElement = document.getElementById('page-title');
     const backgroundContainer = document.querySelector('.background-container');
     const urlParams = new URLSearchParams(window.location.search);
     const drawId = urlParams.get('drawId');
@@ -21,16 +22,21 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const assignmentData = localStorage.getItem(`assignment_${drawId}_${participantId}`);
             if (assignmentData) {
-                const receiver = JSON.parse(assignmentData);
-                assignedPersonElement.textContent = receiver.name;
+                const assignmentDetails = JSON.parse(assignmentData);
+                pageTitleElement.textContent = `Ciao ${assignmentDetails.giverName}!`;
+                assignedPersonElement.textContent = assignmentDetails.receiverName;
+                assignedPersonElement.style.fontSize = '3em'; // Make font size much bigger
             } else {
-                assignedPersonElement.textContent = 'Assignment not found.';
+                pageTitleElement.textContent = 'Assignment not found.';
+                assignedPersonElement.textContent = '';
             }
         } catch (error) {
-            assignedPersonElement.textContent = 'Error: Could not retrieve assignment.';
+            pageTitleElement.textContent = 'Error: Could not retrieve assignment.';
+            assignedPersonElement.textContent = '';
             console.error('Error retrieving assignment:', error);
         }
     } else {
-        assignedPersonElement.textContent = 'No assignment ID found.';
+        pageTitleElement.textContent = 'No assignment ID found.';
+        assignedPersonElement.textContent = '';
     }
 });
