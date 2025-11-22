@@ -4,6 +4,7 @@ const drawButton = document.getElementById('draw-button');
 const exclusionGridContainer = document.getElementById('exclusion-grid-container');
 const exclusionGrid = document.getElementById('exclusion-grid');
 const drawHistoryContainer = document.getElementById('draw-history-container');
+const participantTextarea = document.getElementById('participant-textarea'); // New element
 
 // Draw Confirmation Modal elements
 const drawModal = document.getElementById('draw-modal');
@@ -44,21 +45,28 @@ function generateUniqueId(str) {
 
 participantForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const nameInput = document.getElementById('name');
-    const emailInput = document.getElementById('email');
+    const textareaContent = participantTextarea.value;
+    const lines = textareaContent.split('\n');
 
-    const name = nameInput.value;
-    const email = emailInput.value;
+    lines.forEach(line => {
+        const trimmedLine = line.trim();
+        if (trimmedLine) {
+            const name = trimmedLine.split(' ')[0]; // Get the first word as name
+            // Generate a dummy email, converting name to a more email-friendly format
+            const dummyEmail = `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@example.com`;
+            const id = generateUniqueId(name + dummyEmail);
 
-    if (name && email) {
-        const id = generateUniqueId(name + email);
-        participants.push({ id, name, email });
-        renderParticipants();
-        renderExclusionGrid();
-        saveData();
-        nameInput.value = '';
-        emailInput.value = '';
-    }
+            // Check for duplicates before adding
+            if (!participants.some(p => p.id === id)) {
+                participants.push({ id, name, email: dummyEmail });
+            }
+        }
+    });
+
+    renderParticipants();
+    renderExclusionGrid();
+    saveData();
+    participantTextarea.value = ''; // Clear the textarea
 });
 
 function renderParticipants() {

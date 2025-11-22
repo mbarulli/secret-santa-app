@@ -14,14 +14,10 @@
             <h2>Admin Panel</h2>
             <form id="participant-form">
                 <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" required>
+                    <label for="participant-textarea">Participant Names (one per line):</label>
+                    <textarea id="participant-textarea" rows="5" required></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <button type="submit">Add Participant</button>
+                <button type="submit">Add Participants</button>
             </form>
             <div id="participant-list">
                 <h3>Participants</h3>
