@@ -1,0 +1,131 @@
+{
+  "drawId": "7bp4e",
+  "assignments": [
+    {
+      "giverId": "kvqwa",
+      "giverName": "Roberta",
+      "receiverId": "1mug",
+      "receiverName": "Lea"
+    },
+    {
+      "giverId": "189ma",
+      "giverName": "Mirco",
+      "receiverId": "u2n2d",
+      "receiverName": "Simona"
+    },
+    {
+      "giverId": "2jqfs",
+      "giverName": "Federico",
+      "receiverId": "tl3d9",
+      "receiverName": "Matteo1"
+    },
+    {
+      "giverId": "xceag",
+      "giverName": "Cristina",
+      "receiverId": "1j4z",
+      "receiverName": "Gea"
+    },
+    {
+      "giverId": "zbm8q",
+      "giverName": "Gloria",
+      "receiverId": "184ie",
+      "receiverName": "Marco"
+    },
+    {
+      "giverId": "wg1k8",
+      "giverName": "Nicolo",
+      "receiverId": "1fekd",
+      "receiverName": "Mino"
+    },
+    {
+      "giverId": "19ru5",
+      "giverName": "Paola",
+      "receiverId": "wg1k8",
+      "receiverName": "Nicolo"
+    },
+    {
+      "giverId": "dizgr",
+      "giverName": "Antonio",
+      "receiverId": "189ma",
+      "receiverName": "Mirco"
+    },
+    {
+      "giverId": "1kzgk",
+      "giverName": "Vale",
+      "receiverId": "xceag",
+      "receiverName": "Cristina"
+    },
+    {
+      "giverId": "125dp",
+      "giverName": "Betti",
+      "receiverId": "2jqfs",
+      "receiverName": "Federico"
+    },
+    {
+      "giverId": "wiaq3",
+      "giverName": "Angelo",
+      "receiverId": "7xacz",
+      "receiverName": "Alessandro"
+    },
+    {
+      "giverId": "184ie",
+      "giverName": "Marco",
+      "receiverId": "125dp",
+      "receiverName": "Betti"
+    },
+    {
+      "giverId": "u2n2d",
+      "giverName": "Simona",
+      "receiverId": "1kzgk",
+      "receiverName": "Vale"
+    },
+    {
+      "giverId": "1j4z",
+      "giverName": "Gea",
+      "receiverId": "17uf4",
+      "receiverName": "Anna"
+    },
+    {
+      "giverId": "184ij",
+      "giverName": "Maria",
+      "receiverId": "dizgr",
+      "receiverName": "Antonio"
+    },
+    {
+      "giverId": "tl3d9",
+      "giverName": "Matteo1",
+      "receiverId": "184ij",
+      "receiverName": "Maria"
+    },
+    {
+      "giverId": "tl3d9",
+      "giverName": "Matteo2",
+      "receiverId": "wiaq3",
+      "receiverName": "Angelo"
+    },
+    {
+      "giverId": "7xacz",
+      "giverName": "Alessandro",
+      "receiverId": "zbm8q",
+      "receiverName": "Gloria"
+    },
+    {
+      "giverId": "1mug",
+      "giverName": "Lea",
+      "receiverId": "tl3d9",
+      "receiverName": "Matteo2"
+    },
+    {
+      "giverId": "17uf4",
+      "giverName": "Anna",
+      "receiverId": "kvqwa",
+      "receiverName": "Roberta"
+    },
+    {
+      "giverId": "1fekd",
+      "giverName": "Mino",
+      "receiverId": "19ru5",
+      "receiverName": "Paola"
+    }
+  ]
+}
